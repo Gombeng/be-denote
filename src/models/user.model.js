@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const moment = require('moment');
+const { Schema } = mongoose;
+const { ObjectId } = Schema.Types;
 
-const UserSchema = new mongoose.Schema(
+const UserSchema = new Schema(
 	{
-		username: {
-			required: true,
-			type: String,
-		},
-		password: {
-			required: true,
-			type: String,
-		},
+		email: { type: String, required: true, unique: true },
+		password: { type: String, required: true },
+		_notes: [{ type: ObjectId, ref: 'note' }],
 	},
 	{
 		timestamps: {

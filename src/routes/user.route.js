@@ -1,14 +1,18 @@
 const app = require('express')();
-const asyncHandler = require('express-async-handler');
 const {
+	getAllUsers,
+	getAllNotes,
 	registerUser,
 	loginUser,
-	getAllUser,
 	updateUser,
+	addNote,
 } = require('../controllers/user.controller');
 
+app.get('/', getAllUsers);
+app.get('/:id/notes', getAllNotes);	
 app.post('/login', loginUser);
 app.post('/register', registerUser);
-app.get('/getAll', getAllUser);
-app.patch('/edit/:id', updateUser);
+app.post('/add-note/:id', addNote);	
+app.patch('/update/:id', updateUser);
+
 module.exports = app;

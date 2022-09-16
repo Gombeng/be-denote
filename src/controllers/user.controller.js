@@ -1,26 +1,79 @@
 const asyncHandler = require('express-async-handler');
-const UserModel = require('../models/user.model');
 const generateToken = require('../utils/generateToken');
+const UserModel = require('../models/user.model');
+const NoteModel = require('../models/note.model');
+
+const getAllUsers = asyncHandler(async (req, res, next) => {
+	try {
+		const data = await UserModel.find();
+		res.status(200).json(data);
+	} catch (error) {
+		next(error);
+	}
+});
+
+const getAllNotes = asyncHandler(async (req, res, next) => {
+	// ! find user by id in user model
+	UserModel.findOne({ _id: req.params.id })
+		.populate('_notes')
+		.exec()
+		.then((data) => {
+			res.send(data);
+		})
+		.catch((error) => {
+			next(error);
+		});
+});
+
+const addNote = asyncHandler(async (req, res, next) => {
+	// ! find user by id in user model
+	await UserModel.findOne({ _id: req.params.id })
+		.then((user) => {
+			// ! asign new note from req.body to newNote variable
+			let newNote = new NoteModel(req.body);
+			newNote._user = user._id;
+			user._notes.push(newNote);
+			user
+				.save()
+				.then((data) => {
+					newNote
+						.save()
+						.then((data) => {
+							res.send(data);
+						})
+						.catch((error) => {
+							next(error);
+						});
+				})
+				.catch((error) => {
+					next(error);
+				});
+		})
+		.catch((error) => {
+			next(error);
+		});
+});
 
 const registerUser = asyncHandler(async (req, res, next) => {
-	const { username, password } = req.body;
-	const userExist = await UserModel.findOne({ username });
+	const { email, password } = req.body;
+	const userExist = await UserModel.findOne({ email });
 
 	if (userExist) {
 		res.status(404);
-		throw new Error('Username sudah digunakan!');
+		throw new Error('email already used!');
 	}
 
-	const data = new UserModel({
-		username,
+	const user = new UserModel({
+		email,
 		password,
 	});
 
 	try {
-		await data.save();
+		await user.save();
+		const token = generateToken(user._id);
 		res.status(200).json({
-			data,
-			message: 'Sukses menambahkan data baru',
+			userId: user._id,
+			token,
 		});
 	} catch (error) {
 		next(error);
@@ -28,32 +81,23 @@ const registerUser = asyncHandler(async (req, res, next) => {
 });
 
 const loginUser = asyncHandler(async (req, res, next) => {
-	const { username, password } = req.body;
-	const user = await UserModel.findOne({ username });
+	const { email, password } = req.body;
+	const user = await UserModel.findOne({ email });
 
 	if (!user) {
 		res.status(404);
-		throw new Error('Username tidak ditemukan!');
+		throw new Error('User unregistered!');
 	}
 
 	if (user && (await user.matchPassword(password))) {
+		const token = generateToken(user._id);
 		res.status(200).json({
-			message: 'Sukses login',
-			token: generateToken(user._id),
-			data: user,
+			userId: user._id,
+			token,
 		});
 	} else {
 		res.status(402);
-		throw new Error('Username / password salah!');
-	}
-});
-
-const getAllUser = asyncHandler(async (req, res, next) => {
-	try {
-		const data = await UserModel.find();
-		res.status(200).json(data);
-	} catch (error) {
-		next(error);
+		throw new Error('Password wrong!');
 	}
 });
 
@@ -66,7 +110,6 @@ const updateUser = asyncHandler(async (req, res, next) => {
 		const data = await UserModel.findByIdAndUpdate(id, updatedData, options);
 
 		res.send({
-			message: 'Berhasil edit user!',
 			data,
 		});
 	} catch (error) {
@@ -74,4 +117,11 @@ const updateUser = asyncHandler(async (req, res, next) => {
 	}
 });
 
-module.exports = { getAllUser, registerUser, loginUser, updateUser };
+module.exports = {
+	getAllUsers,
+	getAllNotes,
+	addNote,
+	loginUser,
+	registerUser,
+	updateUser,
+};
