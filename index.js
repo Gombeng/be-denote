@@ -21,14 +21,14 @@ app.use((error, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 8080;
-const DB = process.env.DB;
+const DB = process.env.DATABASE_URI;
 const options = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 };
 
 mongoose
-	.connect(`mongodb+srv://${DB}`, options)
+	.connect(DB, options)
 	.then(() => {
 		app.listen(PORT, () => {
 			console.log(`Server running on http://localhost:${PORT}`);
