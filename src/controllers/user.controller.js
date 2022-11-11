@@ -2,13 +2,21 @@ const asyncHandler = require('express-async-handler');
 const generateToken = require('../utils/generateToken');
 const { UserModel } = require('../models/user.model');
 
-const getAllUsers = asyncHandler(async (req, res, next) => {
-	try {
-		const data = await UserModel.find();
-		res.status(200).json(data);
-	} catch (error) {
-		next(error);
-	}
+const getAll = asyncHandler(async (req, res, next) => {
+	await UserModel.find()
+		.then((data) => {
+			res.status(200).json(data);
+		})
+		.catch((err) => next(err));
+});
+
+const getByUserId = asyncHandler(async (req, res, next) => {
+	const { id } = req.params;
+	await UserModel.findById(id)
+		.then((user) => {
+			res.status(200).json({ data: user });
+		})
+		.catch((err) => next(err));
 });
 
 const registerUser = asyncHandler(async (req, res, next) => {
@@ -17,7 +25,7 @@ const registerUser = asyncHandler(async (req, res, next) => {
 
 	if (userExist) {
 		res.status(404);
-		throw new Error('email already used!');
+		throw new Error('Email already used!');
 	}
 
 	const user = new UserModel({
@@ -25,16 +33,16 @@ const registerUser = asyncHandler(async (req, res, next) => {
 		password,
 	});
 
-	try {
-		await user.save();
-		const token = generateToken(user._id);
-		res.status(200).json({
-			userId: user._id,
-			token,
-		});
-	} catch (error) {
-		next(error);
-	}
+	await user
+		.save()
+		.then((user) => {
+			const token = generateToken(user._id);
+			res.status(200).json({
+				token,
+				data: user,
+			});
+		})
+		.catch((err) => next(err));
 });
 
 const loginUser = asyncHandler(async (req, res, next) => {
@@ -43,14 +51,14 @@ const loginUser = asyncHandler(async (req, res, next) => {
 
 	if (!user) {
 		res.status(404);
-		throw new Error('User unregistered!');
+		throw new Error('User not found!');
 	}
 
 	if (user && (await user.matchPassword(password))) {
 		const token = generateToken(user._id);
 		res.status(200).json({
-			userId: user._id,
 			token,
+			data: user,
 		});
 	} else {
 		res.status(402);
@@ -74,9 +82,20 @@ const updateUser = asyncHandler(async (req, res, next) => {
 	}
 });
 
+const deleteUser = asyncHandler(async (req, res, next) => {
+	const { id } = req.params;
+	await UserModel.findByIdAndDelete(id)
+		.then((user) => {
+			res.status(200).json({ data: user, message: `User deleted` });
+		})
+		.catch((err) => next(err));
+});
+
 module.exports = {
-	getAllUsers,
+	getAll,
+	getByUserId,
 	loginUser,
 	registerUser,
 	updateUser,
+	deleteUser,
 };
