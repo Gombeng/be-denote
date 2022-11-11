@@ -2,9 +2,18 @@ const asyncHandler = require('express-async-handler');
 const { UserModel, NoteModel } = require('../models/user.model');
 
 const getAll = asyncHandler(async (req, res, next) => {
-	// ! find user by id in user model
 	await NoteModel.find()
+		.then((data) => {
+			res.status(200).json({ data });
+		})
+		.catch((error) => {
+			next(error);
+		});
+});
 
+const getById = asyncHandler(async (req, res, next) => {
+	const { id } = req.params;
+	await NoteModel.findById(id)
 		.then((data) => {
 			res.status(200).json({ data });
 		})
@@ -82,6 +91,7 @@ const deleteNote = asyncHandler(async (req, res, next) => {
 
 module.exports = {
 	getAll,
+	getById,
 	getAllByUserId,
 	createNote,
 	updateNote,
