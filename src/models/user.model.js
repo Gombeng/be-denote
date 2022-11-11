@@ -4,6 +4,15 @@ const moment = require('moment');
 const { Schema } = mongoose;
 const { ObjectId } = Schema.Types;
 
+const NoteSchema = new Schema({
+	title: { type: String, required: true },
+	note: { type: String, required: true },
+	created: { type: String, default: moment().format('Do MMM YY') },
+	_user: { type: ObjectId, ref: 'user' },
+});
+
+const NoteModel = mongoose.model('note', NoteSchema);
+
 const UserSchema = new Schema(
 	{
 		email: { type: String, required: true, unique: true },
@@ -33,4 +42,4 @@ UserSchema.pre('save', async function (next) {
 
 const UserModel = mongoose.model('user', UserSchema);
 
-module.exports = UserModel;
+module.exports = { UserModel, NoteModel };

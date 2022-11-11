@@ -1,12 +1,16 @@
 const app = require('express')();
 const {
-	getAllNote,
+	getAll,
+	getAllByUserId,
+	createNote,
 	updateNote,
-	addNote,
+	deleteNote,
 } = require('../controllers/note.controller');
 
-app.get('/getAll', getAllNote);
-app.post('/add-note', addNote);
-app.patch('/update/:id', updateNote);
+app.get('/', getAll);
+app.get('/:id', getAllByUserId);
+app.post('/create/:id', createNote);
+app.patch('/edit/:id', updateNote);
+app.delete('/delete/:id', deleteNote);
 
 module.exports = app;

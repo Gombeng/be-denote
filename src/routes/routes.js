@@ -1,8 +1,8 @@
 const app = require('express')();
 const userRoutes = require('./user.route');
-// const noteRoutes = require('./note.route');
+const noteRoutes = require('./note.route');
 
 app.use('/users', userRoutes);
-// app.use('/note', noteRoutes);
+app.use('/notes', noteRoutes);
 
 module.exports = app;

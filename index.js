@@ -27,11 +27,13 @@ const options = {
 	useUnifiedTopology: true,
 };
 
+// ! DONT FORGET TO SET CONFIG VARS IN HEROKU
+
 mongoose
 	.connect(DB, options)
 	.then(() => {
 		app.listen(PORT, () => {
-			console.log(`Server running on http://localhost:${PORT}`);
+			console.log(`⭐ http://localhost:${PORT}`);
 		});
 
 		app.get('/', (req, res) => {

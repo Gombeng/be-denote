@@ -1,7 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const generateToken = require('../utils/generateToken');
-const UserModel = require('../models/user.model');
-const NoteModel = require('../models/note.model');
+const { UserModel } = require('../models/user.model');
 
 const getAllUsers = asyncHandler(async (req, res, next) => {
 	try {
@@ -10,48 +9,6 @@ const getAllUsers = asyncHandler(async (req, res, next) => {
 	} catch (error) {
 		next(error);
 	}
-});
-
-const getAllNotes = asyncHandler(async (req, res, next) => {
-	// ! find user by id in user model
-	UserModel.findOne({ _id: req.params.id })
-		.populate('_notes')
-		.exec()
-		.then((data) => {
-			res.send(data);
-		})
-		.catch((error) => {
-			next(error);
-		});
-});
-
-const addNote = asyncHandler(async (req, res, next) => {
-	// ! find user by id in user model
-	await UserModel.findOne({ _id: req.params.id })
-		.then((user) => {
-			// ! asign new note from req.body to newNote variable
-			let newNote = new NoteModel(req.body);
-			newNote._user = user._id;
-			user._notes.push(newNote);
-			user
-				.save()
-				.then((data) => {
-					newNote
-						.save()
-						.then((data) => {
-							res.send(data);
-						})
-						.catch((error) => {
-							next(error);
-						});
-				})
-				.catch((error) => {
-					next(error);
-				});
-		})
-		.catch((error) => {
-			next(error);
-		});
 });
 
 const registerUser = asyncHandler(async (req, res, next) => {
@@ -119,8 +76,6 @@ const updateUser = asyncHandler(async (req, res, next) => {
 
 module.exports = {
 	getAllUsers,
-	getAllNotes,
-	addNote,
 	loginUser,
 	registerUser,
 	updateUser,
