@@ -78,7 +78,6 @@ const updateNote = asyncHandler(async (req, res, next) => {
 
 const deleteNote = asyncHandler(async (req, res, next) => {
 	const { id } = req.params;
-	const options = { new: true };
 
 	await NoteModel.findByIdAndDelete(id)
 		.then((note) => {
