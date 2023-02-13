@@ -20,14 +20,12 @@ app.use((error, req, res, next) => {
 	res.status(status).json({ message, data });
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8910;
 const DB = process.env.DATABASE_URI;
 const options = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 };
-
-// ! DONT FORGET TO SET CONFIG VARS IN HEROKU
 
 mongoose
 	.connect(DB, options)
