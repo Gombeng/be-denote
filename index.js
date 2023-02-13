@@ -28,7 +28,7 @@ const options = {
 };
 
 mongoose
-	.connect(DB, options)
+	.connect(`${DB}`, options)
 	.then(() => {
 		app.listen(PORT, () => {
 			console.log(`⭐ http://localhost:${PORT}`);
