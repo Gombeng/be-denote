@@ -34,8 +34,7 @@ mongoose
 			console.log(`⭐ http://localhost:${PORT}`);
 		});
 
-		app.get('/', (req, res) => {
-			res.cookie('tesCookie', 'cookie');
+		app.get('/test', (req, res) => {
 			res.send(`HELLO SERVER!`);
 		});
 	})
